@@ -1,12 +1,13 @@
 import os
 import sys
+from platform import system
 
-from PyQt6.QtCore import QObject, QTimer, pyqtSlot
+from PyQt6.QtCore import QTimer, pyqtSlot
 from PyQt6.QtGui import QAction, QIcon
-from PyQt6.QtWidgets import (QApplication, QDialog, QFileDialog, QFormLayout,
-                             QLabel, QLineEdit, QMenu, QMessageBox,
-                             QPushButton, QSystemTrayIcon, QTextEdit,
-                             QVBoxLayout)
+from PyQt6.QtWidgets import (QApplication, QCheckBox, QDialog, QFileDialog,
+                             QFormLayout, QLabel, QLineEdit, QMenu,
+                             QMessageBox, QPushButton, QSystemTrayIcon,
+                             QTextEdit, QVBoxLayout, QWidget)
 
 from .obs_client import close_obs, is_obs_running, open_obs
 from .playback import Player, get_latest_recording
@@ -41,25 +42,69 @@ class TitleDescriptionDialog(QDialog):
     def get_values(self):
         return self.title_input.text(), self.description_input.toPlainText()
 
-class AppTray(QObject):
+class MainInterface(QWidget):
     def __init__(self, app: QApplication):
         super().__init__()
         self.tray = QSystemTrayIcon(QIcon(resource_path("assets/hal9000.png")))
         self.tray.show()
-        
+                
         self.app = app
+        
+        self.init_tray()
+        self.init_window()
+        
+        if not is_obs_running():
+            self.obs_process = open_obs()
 
+    def init_window(self):
+        self.setWindowTitle("DuckTrack")
+        layout = QVBoxLayout(self)
+        
+        self.toggle_record_button = QPushButton("Start Recording", self)
+        self.toggle_record_button.clicked.connect(self.toggle_record)
+        layout.addWidget(self.toggle_record_button)
+        
+        self.toggle_pause_button = QPushButton("Pause Recording", self)
+        self.toggle_pause_button.clicked.connect(self.toggle_pause)
+        self.toggle_pause_button.setEnabled(False)
+        layout.addWidget(self.toggle_pause_button)
+        
+        self.show_recordings_button = QPushButton("Show Recordings", self)
+        self.show_recordings_button.clicked.connect(lambda: open_file(get_recordings_dir()))
+        layout.addWidget(self.show_recordings_button)
+        
+        self.play_latest_button = QPushButton("Play Latest Recording", self)
+        self.play_latest_button.clicked.connect(self.play_latest_recording)
+        layout.addWidget(self.play_latest_button)
+        
+        self.play_custom_button = QPushButton("Play Custom Recording", self)
+        self.play_custom_button.clicked.connect(self.play_custom_recording)
+        layout.addWidget(self.play_custom_button)
+        
+        self.replay_recording_button = QPushButton("Replay Recording", self)
+        self.replay_recording_button.clicked.connect(self.replay_recording)
+        self.replay_recording_button.setEnabled(False)
+        layout.addWidget(self.replay_recording_button)
+        
+        self.quit_button = QPushButton("Quit", self)
+        self.quit_button.clicked.connect(self.quit)
+        layout.addWidget(self.quit_button)
+        
+        self.natural_scrolling_checkbox = QCheckBox("Natural Scrolling", self)
+        layout.addWidget(self.natural_scrolling_checkbox)
+        
+        if system() == "Darwin":
+            self.natural_scrolling_checkbox.setChecked(True)
+        
+        self.setLayout(layout)
+        
+    def init_tray(self):
         self.menu = QMenu()
         self.tray.setContextMenu(self.menu)
 
-        self.start_record_action = QAction("Start Recording")
-        self.start_record_action.triggered.connect(self.start_recording)
-        self.menu.addAction(self.start_record_action)
-
-        self.stop_record_action = QAction("Stop Recording")
-        self.stop_record_action.triggered.connect(self.stop_recording)
-        self.stop_record_action.setVisible(False)
-        self.menu.addAction(self.stop_record_action)
+        self.toggle_record_action = QAction("Start Recording")
+        self.toggle_record_action.triggered.connect(self.toggle_record)
+        self.menu.addAction(self.toggle_record_action)
 
         self.toggle_pause_action = QAction("Pause Recording")
         self.toggle_pause_action.triggered.connect(self.toggle_pause)
@@ -86,9 +131,6 @@ class AppTray(QObject):
         self.quit_action = QAction("Quit")
         self.quit_action.triggered.connect(self.quit)
         self.menu.addAction(self.quit_action)
-        
-        if not is_obs_running():
-            self.obs_process = open_obs()
 
     @pyqtSlot()
     def replay_recording(self):
@@ -104,6 +146,7 @@ class AppTray(QObject):
         recording_path = get_latest_recording()
         self.last_played_recording_path = recording_path
         self.replay_recording_action.setVisible(True)
+        self.replay_recording_button.setEnabled(True)
         player.play(recording_path)
 
     @pyqtSlot()
@@ -117,30 +160,34 @@ class AppTray(QObject):
 
     @pyqtSlot()
     def quit(self):
-        self.stop_recording()
+        if hasattr(self, "recorder_thread"):
+            self.toggle_record()
         if hasattr(self, "obs_process"):
             close_obs(self.obs_process)
         self.app.quit()
+
+    def closeEvent(self, event):
+        self.quit()
 
     @pyqtSlot()
     def toggle_pause(self):
         if self.recorder_thread._is_paused:
             self.recorder_thread.resume_recording()
             self.toggle_pause_action.setText("Pause Recording")
+            self.toggle_pause_button.setText("Pause Recording")
         else:
             self.recorder_thread.pause_recording()
             self.toggle_pause_action.setText("Resume Recording")
+            self.toggle_pause_button.setText("Resume Recording")
 
     @pyqtSlot()
-    def start_recording(self):
-        self.recorder_thread = Recorder()
-        self.recorder_thread.recording_stopped.connect(self.on_recording_stopped)
-        self.recorder_thread.start()
-        self.update_menu(True)
-
-    @pyqtSlot()
-    def stop_recording(self):
-        if hasattr(self, "recorder_thread"):
+    def toggle_record(self):
+        if not hasattr(self, "recorder_thread"):
+            self.recorder_thread = Recorder(natural_scrolling=self.natural_scrolling_checkbox.isChecked())
+            self.recorder_thread.recording_stopped.connect(self.on_recording_stopped)
+            self.recorder_thread.start()
+            self.update_menu(True)
+        else:
             self.recorder_thread.stop_recording()
             self.recorder_thread.terminate()
 
@@ -169,8 +216,10 @@ class AppTray(QObject):
         self.update_menu(False)
 
     def update_menu(self, is_recording: bool):
-        self.start_record_action.setVisible(not is_recording)
-        self.stop_record_action.setVisible(is_recording)
+        self.toggle_record_button.setText("Stop Recording" if is_recording else "Start Recording")
+        self.toggle_record_action.setText("Stop Recording" if is_recording else "Start Recording")
+        
+        self.toggle_pause_button.setEnabled(is_recording)
         self.toggle_pause_action.setVisible(is_recording)
 
     def display_error_message(self, message):

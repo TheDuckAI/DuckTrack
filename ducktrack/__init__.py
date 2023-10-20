@@ -1,1 +1,1 @@
-from .app import AppTray
+from .app import MainInterface

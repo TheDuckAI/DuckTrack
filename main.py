@@ -4,14 +4,15 @@ import traceback
 
 from PyQt6.QtWidgets import QApplication
 
-from ducktrack import AppTray
+from ducktrack import MainInterface
 
 
 def main():
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    tray = AppTray(app)
+    interface = MainInterface(app)
+    interface.show()
     
     original_excepthook = sys.excepthook
 
@@ -25,7 +26,7 @@ def main():
         print("Exception traceback:", trace_string)
 
         message = f"An error occurred!\n\n{exc_value}\n\n{trace_string}"
-        tray.display_error_message(message)
+        interface.display_error_message(message)
         
         original_excepthook(exc_type, exc_value, exc_traceback)
 

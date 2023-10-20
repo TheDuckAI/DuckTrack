@@ -17,7 +17,7 @@ from .util import fix_windows_dpi_scaling, get_recordings_dir
 class Recorder(QThread):
     recording_stopped = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, natural_scrolling: bool):
         super().__init__()
         
         if system() == "Windows":
@@ -31,7 +31,10 @@ class Recorder(QThread):
         self.event_queue = Queue()
         self.events_file = open(os.path.join(self.recording_path, "events.jsonl"), "a")
         
-        self.metadata_manager = MetadataManager(recording_path=self.recording_path)
+        self.metadata_manager = MetadataManager(
+            recording_path=self.recording_path, 
+            natural_scrolling=natural_scrolling
+        )
         self.obs_client = OBSClient(recording_path=self.recording_path, 
                                     metadata=self.metadata_manager.metadata)
 

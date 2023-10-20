@@ -8,7 +8,7 @@ from screeninfo import get_monitors
 
 
 class MetadataManager:
-    def __init__(self, recording_path: str):
+    def __init__(self, recording_path: str, natural_scrolling: bool):
         self.recording_path = recording_path
         
         self.metadata = uname()._asdict()
@@ -36,10 +36,7 @@ class MetadataManager:
         except:
             self.metadata["model"] = "Unknown"
         
-        if self.metadata["system"] == "Darwin":
-            self.metadata["scroll_direction"] = -1
-        else:
-            self.metadata["scroll_direction"] = 1
+        self.metadata["scroll_direction"] = -1 if natural_scrolling else 1
 
     def save_metadata(self):
         metadata_path = os.path.join(self.recording_path, "metadata.json")
