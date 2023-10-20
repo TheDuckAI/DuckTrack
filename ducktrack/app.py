@@ -90,11 +90,10 @@ class MainInterface(QWidget):
         self.quit_button.clicked.connect(self.quit)
         layout.addWidget(self.quit_button)
         
-        self.natural_scrolling_checkbox = QCheckBox("Natural Scrolling", self)
+        self.natural_scrolling_checkbox = QCheckBox("Natural Scrolling", self, checked=system() == "Darwin")
         layout.addWidget(self.natural_scrolling_checkbox)
-        
-        if system() == "Darwin":
-            self.natural_scrolling_checkbox.setChecked(True)
+
+        self.natural_scrolling_checkbox.stateChanged.connect(self.toggle_natural_scrolling)
         
         self.setLayout(layout)
         
@@ -131,7 +130,11 @@ class MainInterface(QWidget):
         self.quit_action = QAction("Quit")
         self.quit_action.triggered.connect(self.quit)
         self.menu.addAction(self.quit_action)
-
+        
+        self.natural_scrolling_option = QAction("Natural Scrolling", checkable=True, checked=system() == "Darwin")
+        self.natural_scrolling_option.triggered.connect(self.toggle_natural_scrolling)
+        self.menu.addAction(self.natural_scrolling_option)
+        
     @pyqtSlot()
     def replay_recording(self):
         player = Player()
@@ -168,6 +171,17 @@ class MainInterface(QWidget):
 
     def closeEvent(self, event):
         self.quit()
+
+    @pyqtSlot()
+    def toggle_natural_scrolling(self):
+        sender = self.sender()
+
+        if sender == self.natural_scrolling_checkbox:
+            state = self.natural_scrolling_checkbox.isChecked()
+            self.natural_scrolling_option.setChecked(state)
+        else:
+            state = self.natural_scrolling_option.isChecked()
+            self.natural_scrolling_checkbox.setChecked(state)
 
     @pyqtSlot()
     def toggle_pause(self):
