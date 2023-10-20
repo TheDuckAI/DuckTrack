@@ -5,12 +5,13 @@ from datetime import datetime
 from platform import system
 from queue import Queue
 
-from metadata import MetadataManager
-from obs_client import OBSClient
 from pynput import keyboard, mouse
 from pynput.keyboard import KeyCode
 from PyQt6.QtCore import QThread, pyqtSignal
-from util import fix_windows_dpi_scaling, get_recordings_dir
+
+from .metadata import MetadataManager
+from .obs_client import OBSClient
+from .util import fix_windows_dpi_scaling, get_recordings_dir
 
 
 class Recorder(QThread):

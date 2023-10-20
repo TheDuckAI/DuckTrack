@@ -1,18 +1,17 @@
 import os
-import signal
 import sys
-import traceback
 
-from obs_client import close_obs, is_obs_running, open_obs
-from playback import Player, get_latest_recording
 from PyQt6.QtCore import QObject, QTimer, pyqtSlot
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import (QApplication, QDialog, QFileDialog, QFormLayout,
                              QLabel, QLineEdit, QMenu, QMessageBox,
                              QPushButton, QSystemTrayIcon, QTextEdit,
                              QVBoxLayout)
-from recorder import Recorder
-from util import get_recordings_dir, open_file
+
+from .obs_client import close_obs, is_obs_running, open_obs
+from .playback import Player, get_latest_recording
+from .recorder import Recorder
+from .util import get_recordings_dir, open_file
 
 
 class TitleDescriptionDialog(QDialog):
@@ -43,10 +42,12 @@ class TitleDescriptionDialog(QDialog):
         return self.title_input.text(), self.description_input.toPlainText()
 
 class AppTray(QObject):
-    def __init__(self):
+    def __init__(self, app: QApplication):
         super().__init__()
-        self.tray = QSystemTrayIcon(QIcon(self.resource_path("../assets/hal9000.png")))
+        self.tray = QSystemTrayIcon(QIcon(resource_path("assets/hal9000.png")))
         self.tray.show()
+        
+        self.app = app
 
         self.menu = QMenu()
         self.tray.setContextMenu(self.menu)
@@ -119,15 +120,15 @@ class AppTray(QObject):
         self.stop_recording()
         if hasattr(self, "obs_process"):
             close_obs(self.obs_process)
-        app.quit()
+        self.app.quit()
 
     @pyqtSlot()
     def toggle_pause(self):
-        if tray.recorder_thread._is_paused:
-            tray.recorder_thread.resume_recording()
+        if self.recorder_thread._is_paused:
+            self.recorder_thread.resume_recording()
             self.toggle_pause_action.setText("Pause Recording")
         else:
-            tray.recorder_thread.pause_recording()
+            self.recorder_thread.pause_recording()
             self.toggle_pause_action.setText("Resume Recording")
 
     @pyqtSlot()
@@ -175,32 +176,10 @@ class AppTray(QObject):
     def display_error_message(self, message):
         QMessageBox.critical(None, "Error", message)
         
-    def resource_path(self, relative_path):
-        base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
-        return os.path.join(base_path, relative_path)
+def resource_path(relative_path: str) -> str:
+    if hasattr(sys, '_MEIPASS'):
+        base_path = getattr(sys, "_MEIPASS")
+    else:
+        base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(False)
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
-    tray = AppTray()
-    
-    original_excepthook = sys.excepthook
-
-    def handle_exception(exc_type, exc_value, exc_traceback):
-        print("Exception type:", exc_type)
-        print("Exception value:", exc_value)
-        
-        trace_details = traceback.format_exception(exc_type, exc_value, exc_traceback)
-        trace_string = "".join(trace_details)
-
-        print("Exception traceback:", trace_string)
-
-        message = f"An error occurred!\n\n{exc_value}\n\n{trace_string}"
-        tray.display_error_message(message)
-        
-        original_excepthook(exc_type, exc_value, exc_traceback)
-
-    sys.excepthook = handle_exception
-
-    sys.exit(app.exec())
+    return os.path.join(base_path, relative_path)

@@ -1,5 +1,6 @@
 from pynput.keyboard import Listener
-from util import name_to_key
+
+from .util import name_to_key
 
 
 class KeyCombinationListener:

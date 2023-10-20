@@ -2,13 +2,12 @@ import os
 import subprocess
 import time
 from platform import system
-from threading import Thread
 
 import obsws_python as obs
 import psutil
 
 
-def is_obs_running():
+def is_obs_running() -> bool:
     try:
         for process in psutil.process_iter(attrs=["pid", "name"]):
             if "obs" in process.info["name"].lower():
@@ -25,7 +24,7 @@ def close_obs(obs_process: psutil.Process):
         except subprocess.TimeoutExpired:
             obs_process.kill()
 
-def find_obs():
+def find_obs() -> str:
     # just some guesses at where obs might be installed
     paths = {
         "Windows": [
@@ -59,7 +58,7 @@ def find_obs():
 
     return "obs"
 
-def open_obs():
+def open_obs() -> psutil.Process:
     try:
         return subprocess.Popen([find_obs(), "--startreplaybuffer", "--minimize-to-tray"])
     except Exception as e:
