@@ -81,8 +81,11 @@ class OBSClient:
         self.record_state_events = {}
         
         def on_record_state_changed(data):
-            print("record state changed:", data.output_state)
-            self.record_state_events[data.output_state] = time.perf_counter()
+            output_state = data.output_state
+            print("record state changed:", output_state)
+            if output_state not in self.record_state_events:
+                self.record_state_events[output_state] = []
+            self.record_state_events[output_state].append(time.perf_counter())
         
         self.event_client.callback.register(on_record_state_changed)
 

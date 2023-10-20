@@ -13,8 +13,14 @@
     "start_time": "2023-10-20 17:19:53",
     "stop_time": "2023-10-20 17:20:26",
     "obs_record_state_timings": {
-        "OBS_WEBSOCKET_OUTPUT_STARTING": 150160.86498575,
-        "OBS_WEBSOCKET_OUTPUT_STARTED": 150160.871470625,
-        "OBS_WEBSOCKET_OUTPUT_STOPPING": 150193.79908625
+        "OBS_WEBSOCKET_OUTPUT_STARTING": [
+            150160.86498575
+        ],
+        "OBS_WEBSOCKET_OUTPUT_STARTED": [
+            150160.871470625
+        ],
+        "OBS_WEBSOCKET_OUTPUT_STOPPING": [
+            150193.79908625
+        ]
     }
 }
