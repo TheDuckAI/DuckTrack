@@ -131,6 +131,8 @@ class MainInterface(QWidget):
         self.quit_action.triggered.connect(self.quit)
         self.menu.addAction(self.quit_action)
         
+        self.menu.addSeparator()
+        
         self.natural_scrolling_option = QAction("Natural Scrolling", checkable=True, checked=system() == "Darwin")
         self.natural_scrolling_option.triggered.connect(self.toggle_natural_scrolling)
         self.menu.addAction(self.natural_scrolling_option)
