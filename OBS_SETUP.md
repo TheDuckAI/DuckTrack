@@ -45,10 +45,6 @@ These are instructions on setting up OBS (Open Broadcaster Software) to record s
 
    ![Main Display](readme_images/Screenshot%202023-06-24%20112001.png)
 
-4. Be sure to mute your microphone before you start recording
-
-![Mute Microphone](readme_images/Screenshot%202023-06-24%20162423.png)
-
-1. Now you can close OBS and OBS will opened and controlled automatically when you launch the Computer Tracker App. Also, the Computer Tracker app creates a new OBS profile so you don't have to worry about your previous settings being messed up.
+4. Now you can close OBS and OBS will opened and controlled automatically when you launch the Computer Tracker App. Also, the Computer Tracker app creates a new OBS profile so you don't have to worry about your previous settings being messed up.
 
    ![Recording in Progress](readme_images/Screenshot%202023-06-24%20113548.png)
