@@ -5,4 +5,5 @@ PyQt6
 Pillow
 screeninfo
 wmi
-psutil
+psutils
+pyinstaller

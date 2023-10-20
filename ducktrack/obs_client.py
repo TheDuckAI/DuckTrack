@@ -58,9 +58,13 @@ def find_obs() -> str:
 
     return "obs"
 
-def open_obs() -> psutil.Process:
+def open_obs() -> subprocess.Popen:
     try:
-        return subprocess.Popen([find_obs(), "--startreplaybuffer", "--minimize-to-tray"])
+        obs_path = find_obs()
+        if system() == "Windows":
+            os.chdir(os.path.dirname(obs_path))
+            obs_path = os.path.basename(obs_path)
+        return subprocess.Popen([obs_path, "--startreplaybuffer", "--minimize-to-tray"])
     except Exception as e:
         raise FileNotFoundError("Failed to find OBS, please open OBS manually.")
 
