@@ -11,7 +11,7 @@ Download the pre-built application for your system [here]().
 
 Make sure you have OBS downloaded and:
 1. Have a screen capture source recording your whole main screen.
-2. Allow desktop audio and mute your microphone. 
+2. Enable desktop audio.
 3. Make sure the default websocket is enabled.
 
 More detailed instructions for OBS setup and installation located [here](OBS_SETUP.md).
@@ -29,8 +29,8 @@ Have Python >=3.11.
 
 Clone this repo and `cd` into it:
 ```bash
-$ git clone https://github.com/TheDuckAI/multimodal-computer-dataset
-$ cd multimodal-computer-dataset/ComputerTracker
+$ git clone https://github.com/TheDuckAI/DuckTrack
+$ cd DuckTrack
 ```
 
 Install the dependencies for this project:
@@ -40,7 +40,7 @@ $ pip install -r requirements.txt
 
 Build the application:
 ```bash
-$ pyinstaller "DuckTrack.spec"
+$ python3 build.py
 ```
 
 The built application should be located in the generated `dist` directory. After this, follow the remaining relevant setup instructions.
