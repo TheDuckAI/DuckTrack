@@ -1,0 +1,15 @@
+{
+    "system": "Darwin",
+    "node": "broyojo-mbp",
+    "release": "23.0.0",
+    "version": "Darwin Kernel Version 23.0.0: Fri Sep 15 14:43:05 PDT 2023; root:xnu-10002.1.13~1/RELEASE_ARM64_T6020",
+    "machine": "arm64",
+    "processor": "arm",
+    "id": 13939574105829,
+    "screen_width": 1512,
+    "screen_height": 982,
+    "model": "Mac14,9",
+    "scroll_direction": -1,
+    "start_time": "2023-10-03 17:22:08",
+    "stop_time": "2023-10-03 17:22:22"
+}
