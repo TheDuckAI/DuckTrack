@@ -160,6 +160,7 @@ class MainInterface(QWidget):
         directory = QFileDialog.getExistingDirectory(None, "Select Recording", get_recordings_dir())
         if directory:
             self.last_played_recording_path = directory
+            self.replay_recording_button.setEnabled(True)
             self.replay_recording_action.setVisible(True)
             player.play(directory)
 
