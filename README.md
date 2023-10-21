@@ -7,7 +7,7 @@ This is the repository for the DuckAI DuckTrack app which records all keyboard a
 ### Download Application
 
 <!-- TODO: add prebuilt applications in github releases -->
-Download the pre-built application for your system [here]().
+Download the pre-built application for your system [here](https://github.com/TheDuckAI/DuckTrack/releases/).
 
 Make sure you have OBS downloaded and:
 1. Have a screen capture source recording your whole main screen.
@@ -88,3 +88,5 @@ Here is a [sample recording](example) for further reference.
 - Add logging
 - Testing
 - CI (with builds and testing)
+- Add way to hide/show window from the app tray (and it saves that as a preference?)
+- Make saving preferences a thing generally, like with natural scrolling too
