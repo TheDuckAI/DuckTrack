@@ -47,7 +47,7 @@ The built application should be located in the generated `dist` directory. After
 
 ## Running the App
 
-You can run the app like any other desktop app on your computer. If you decided to not download the app or build it from source, just run `python main.py` and it should work the same. You will be interacting with the app through an app tray icon.
+You can run the app like any other desktop app on your computer. If you decided to not download the app or build it from source, just run `python main.py` and it should work the same. You will be interacting with the app through an app tray icon or a small window.
 
 ### Recording
 
