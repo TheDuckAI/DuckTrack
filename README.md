@@ -86,3 +86,5 @@ Here is a [sample recording](example) for further reference.
 ## Things To Do
 
 - Add logging
+- Testing
+- CI (with builds and testing)
