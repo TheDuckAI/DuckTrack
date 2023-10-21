@@ -21,6 +21,10 @@ def get_recordings_dir() -> str:
     return str(documents_folder)
 
 def fix_windows_dpi_scaling():
+    """
+    Fixes DPI scaling issues with legacy windows applications
+    Reference: https://pynput.readthedocs.io/en/latest/mouse.html#ensuring-consistent-coordinates-between-listener-and-controller-on-windows
+    """
     import ctypes
     PROCESS_PER_MONITOR_DPI_AWARE = 2
     ctypes.windll.shcore.SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE)

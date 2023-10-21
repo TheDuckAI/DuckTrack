@@ -15,6 +15,10 @@ from .util import fix_windows_dpi_scaling, get_recordings_dir
 
 
 class Recorder(QThread):
+    """
+    Makes recordings.
+    """
+    
     recording_stopped = pyqtSignal()
 
     def __init__(self, natural_scrolling: bool):

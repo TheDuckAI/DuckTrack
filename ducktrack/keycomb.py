@@ -4,6 +4,10 @@ from .util import name_to_key
 
 
 class KeyCombinationListener:
+    """
+    Simple and bad key combination listener.
+    """
+    
     def __init__(self):
         self.current_keys = set()
         self.callbacks = {}

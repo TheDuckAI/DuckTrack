@@ -13,10 +13,10 @@ def is_obs_running() -> bool:
             if "obs" in process.info["name"].lower():
                 return True
         return False
-    except Exception as e:
+    except:
         raise Exception("Could not check if OBS is running already. Please check manually.")
 
-def close_obs(obs_process: psutil.Process):
+def close_obs(obs_process: subprocess.Popen):
     if obs_process:
         obs_process.terminate()
         try:
@@ -25,8 +25,7 @@ def close_obs(obs_process: psutil.Process):
             obs_process.kill()
 
 def find_obs() -> str:
-    # just some guesses at where obs might be installed
-    paths = {
+    common_paths = {
         "Windows": [
             "C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe",
             "C:\\Program Files (x86)\\obs-studio\\bin\\32bit\\obs32.exe"
@@ -41,7 +40,7 @@ def find_obs() -> str:
         ]
     }
 
-    for path in paths.get(system(), []):
+    for path in common_paths.get(system(), []):
         if os.path.exists(path):
             return path
     
@@ -62,18 +61,24 @@ def open_obs() -> subprocess.Popen:
     try:
         obs_path = find_obs()
         if system() == "Windows":
+            # you have to change the working directory first for OBS to find the correct locale on windows
             os.chdir(os.path.dirname(obs_path))
             obs_path = os.path.basename(obs_path)
         return subprocess.Popen([obs_path, "--startreplaybuffer", "--minimize-to-tray"])
-    except Exception as e:
-        raise FileNotFoundError("Failed to find OBS, please open OBS manually.")
+    except:
+        raise Exception("Failed to find OBS, please open OBS manually.")
 
 class OBSClient:
+    """
+    Controls the OBS client via the OBS websocket.
+    Sets all the correct settings for recording.
+    """
+    
     def __init__(
         self, 
         recording_path: str, 
         metadata: dict, 
-        fps=30, 
+        fps=30,
         output_width=1280, 
         output_height=720, 
     ):
@@ -108,6 +113,7 @@ class OBSClient:
         
         if metadata["system"] == "Darwin":
             # for retina displays
+            # TODO: check if external displays are messed up by this
             base_width *= 2
             base_height *= 2
         
@@ -138,8 +144,9 @@ class OBSClient:
 
         self.req_client.set_profile_parameter("SimpleOutput", "FilePath", recording_path)
     
+        # TODO: not all OBS configs have this, maybe just instruct the user to mute themselves
         self.req_client.set_input_mute("Mic/Aux", muted=True)
-            
+
     def start_recording(self):
         self.req_client.start_record()
 
@@ -154,6 +161,10 @@ class OBSClient:
         self.req_client.resume_record()
    
 def _get_bitrate_mbps(width: int, height: int, fps=30) -> float:
+    """
+    Gets the YouTube recommended bitrate in Mbps for a given resolution and framerate.
+    Refer to https://support.google.com/youtube/answer/1722171?hl=en#zippy=%2Cbitrate
+    """
     resolutions = {
         (7680, 4320): {30: 120, 60: 180},
         (3840, 2160): {30: 40,  60: 60.5},
@@ -167,17 +178,13 @@ def _get_bitrate_mbps(width: int, height: int, fps=30) -> float:
     if (width, height) in resolutions:
         return resolutions[(width, height)].get(fps)
     else:
+        # approximate the bitrate using a simple linear model
         area = width * height
         multiplier = 3.5982188179592543e-06 if fps == 30 else 5.396175171097084e-06
         constant = 2.418399836285939 if fps == 30 else 3.742780056500365
         return multiplier * area + constant
 
-def _scale_resolution(
-    base_width: int, 
-    base_height: int, 
-    target_width: int, 
-    target_height: int
-) -> tuple[int, int]:
+def _scale_resolution(base_width: int, base_height: int, target_width: int,  target_height: int) -> tuple[int, int]:
     target_area = target_width * target_height
     aspect_ratio = base_width / base_height
     

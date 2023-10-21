@@ -65,7 +65,7 @@ To quit the app, you just press the "Quit" option.
 
 ## Recording Format
 
-Recordings are stored in `Documents/recordings`. Each recording is a directory containing:
+Recordings are stored in `Documents/DuckTrack_Recordings`. Each recording is a directory containing:
 
 1. `events.jsonl` file - sequence of all computer actions that happened. A sample event may look like this:
 ```json
@@ -82,3 +82,7 @@ Here is a [sample recording](example) for further reference.
 <!-- maybe put a nice graphical representation of the app here -->
 
 *TDB*
+
+## Things To Do
+
+- Add logging

@@ -8,6 +8,10 @@ from screeninfo import get_monitors
 
 
 class MetadataManager:
+    """
+    Handles various system metadata collection.
+    """
+    
     def __init__(self, recording_path: str, natural_scrolling: bool):
         self.recording_path = recording_path
         

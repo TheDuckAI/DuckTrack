@@ -21,7 +21,7 @@ class TitleDescriptionDialog(QDialog):
 
         self.setWindowTitle("Recording Details")
 
-        self.layout = QVBoxLayout(self)
+        layout = QVBoxLayout(self)
 
         self.form_layout = QFormLayout()
 
@@ -33,11 +33,11 @@ class TitleDescriptionDialog(QDialog):
         self.description_input = QTextEdit(self)
         self.form_layout.addRow(self.description_label, self.description_input)
 
-        self.layout.addLayout(self.form_layout)
+        layout.addLayout(self.form_layout)
 
         self.submit_button = QPushButton("Save", self)
         self.submit_button.clicked.connect(self.accept)
-        self.layout.addWidget(self.submit_button)
+        layout.addWidget(self.submit_button)
 
     def get_values(self):
         return self.title_input.text(), self.description_input.toPlainText()

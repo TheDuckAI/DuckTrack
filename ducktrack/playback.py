@@ -18,6 +18,10 @@ pyautogui.PAUSE = 0
 pyautogui.DARWIN_CATCH_UP_TIME = 0
 
 class Player:
+    """
+    Plays back recordings.
+    """
+    
     def __init__(self):
         self.stop_playback = False
         self.listener = KeyCombinationListener()
@@ -60,24 +64,14 @@ class Player:
             if self.stop_playback:
                 return
             
-            # TODO just inline this instead of having a lambda for it (it is only called once)
-            def sleep():
-                end_time = time.perf_counter()
-                execution_time = end_time - start_time
-
-                if i + 1 < len(events):
-                    desired_delay = events[i + 1]["time_stamp"] - event["time_stamp"]
-                    delay = desired_delay - execution_time
-                    if delay < 0:
-                        print(f"warning: behind by {-delay * 1000:.3f} ms")
-                    time.sleep(max(delay, 0))
-
             def do_mouse_press(button):
                 for j, second_event in enumerate(events[i+1:]):
+                    # make sure the time between mouse clicks is less than 500ms
                     if second_event["time_stamp"] - event["time_stamp"] > 0.5:
                         break
                     
                     if "x" in second_event and "y" in second_event:
+                        # if the mouse moves out of the click radius/rectangle, it is not a click sequence
                         if math.sqrt((second_event["y"] - event["y"]) ** 2 +
                                     (second_event["x"] - event["x"]) ** 2) > 4:
                             break
@@ -132,6 +126,7 @@ class Player:
 
             elif event["action"] == "scroll":
                 if metadata["system"] == "Windows":
+                    # for some reason on windows, pynput scroll is correct but pyautogui is not
                     mouse_controller.scroll(metadata["scroll_direction"] * event["dx"], metadata["scroll_direction"] * event["dy"])
                 else:
                     pyautogui.hscroll(clicks=metadata["scroll_direction"] * event["dx"])
@@ -144,7 +139,18 @@ class Player:
                 else:
                     keyboard_controller.release(key)
         
-            sleep()
+            # sleep for the correct amount of time
+            
+            end_time = time.perf_counter()
+            execution_time = end_time - start_time
+
+            if i + 1 < len(events):
+                desired_delay = events[i + 1]["time_stamp"] - event["time_stamp"]
+                delay = desired_delay - execution_time
+                if delay < 0:
+                    print(f"warning: behind by {-delay * 1000:.3f} ms")
+                time.sleep(max(delay, 0))
+        
         self.listener.stop()
 
 def get_latest_recording() -> str:
