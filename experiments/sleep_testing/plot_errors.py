@@ -3,7 +3,7 @@ import csv
 import matplotlib.pyplot as plt
 
 
-def plot_from_csv(filename):
+def plot_from_csv(filename, save_plot=False):
     durations = []
     sleep_errors = []
     busy_sleep_errors = []
@@ -23,7 +23,12 @@ def plot_from_csv(filename):
     plt.title('Sleep Accuracy: time.sleep() vs Busy-Wait Loop')
     plt.legend()
     plt.grid(True)
+    
+    if save_plot:
+        plt.savefig('sleep_accuracy_plot.png', dpi=300)
+        print("Plot saved as sleep_accuracy_plot.png")
+        
     plt.show()
 
 # Usage
-plot_from_csv('sleep_data.csv')
+plot_from_csv('sleep_data.csv', save_plot=True)
