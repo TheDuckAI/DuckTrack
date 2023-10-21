@@ -149,7 +149,10 @@ class Player:
                 delay = desired_delay - execution_time
                 if delay < 0:
                     print(f"warning: behind by {-delay * 1000:.3f} ms")
-                time.sleep(max(delay, 0))
+                elif delay != 0:
+                    wait_until = time.perf_counter() + delay
+                    while time.perf_counter() < wait_until:
+                        pass
         
         self.listener.stop()
 

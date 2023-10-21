@@ -14,8 +14,9 @@ def main():
     interface = MainInterface(app)
     interface.show()
     
-    original_excepthook = sys.excepthook
+    # TODO: come up with a better error solution to this
 
+    original_excepthook = sys.excepthook
     def handle_exception(exc_type, exc_value, exc_traceback):
         print("Exception type:", exc_type)
         print("Exception value:", exc_value)

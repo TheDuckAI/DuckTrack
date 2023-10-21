@@ -55,7 +55,7 @@ def calculate_statistics(errors):
 
 def main():
     groundtruth_file = 'groundtruth.csv'
-    run_files = glob.glob('runs/run*.csv')
+    run_files = glob.glob('runs/*.csv')
 
     groundtruth_df = read_file(groundtruth_file)
     run_dfs = {f'run{i+1}': read_file(file) for i, file in enumerate(run_files)}
