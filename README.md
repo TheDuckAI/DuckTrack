@@ -83,6 +83,10 @@ Here is a [sample recording](example) for further reference.
 
 *TDB*
 
+## Known Bugs
+
+- After doing lots of playback, a segfault will occur.
+
 ## Things To Do
 
 - Add logging

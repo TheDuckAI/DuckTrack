@@ -30,5 +30,4 @@ def plot_from_csv(filename, save_plot=False):
         
     plt.show()
 
-# Usage
 plot_from_csv('sleep_data.csv', save_plot=True)

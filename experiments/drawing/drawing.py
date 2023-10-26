@@ -84,29 +84,26 @@ ssim_ci = calculate_confidence_interval(ssim_values)
 print(f"\nRMSE - Mean: {rmse_mean}, Median: {rmse_median}, Std Dev: {rmse_stdev}, 95% CI: {rmse_ci}")
 print(f"SSIM - Mean: {ssim_mean}, Median: {ssim_median}, Std Dev: {ssim_stdev}, 95% CI: {ssim_ci}")
 
+print(f"RMSE: {rmse_mean} ± {rmse_ci[1] - rmse_mean}")
+print(f"SSIM: {ssim_mean} ± {ssim_ci[1] - ssim_mean}")
+
 def save_average_diff_map(results, save_path='average_diff_map.png'):
     if not results:
         print("No results available to create an average diff map.")
         return
     
-    # Initialize the average diff map to 0
     avg_diff_map = None
     
     for res in results:
         if avg_diff_map is None:
-            # Initialize avg_diff_map with the shape of the first diff_mask, set to zeros.
             avg_diff_map = np.zeros_like(res['diff_mask'])
         
-        # Add each diff_mask to avg_diff_map
         avg_diff_map += res['diff_mask']
     
-    # Divide by the number of diff_mask to get the average
     avg_diff_map /= len(results)
     
-    # Scale to 0-255 and convert to uint8
     avg_diff_map = (avg_diff_map * 255).astype(np.uint8)
     
-    # Save the average diff map
     cv2.imwrite(save_path, avg_diff_map)
 
 # Usage

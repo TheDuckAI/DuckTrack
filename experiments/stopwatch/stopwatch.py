@@ -1,8 +1,10 @@
 import glob
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
+import seaborn as sns
 
 # use this: https://www.estopwatch.net/
 
@@ -20,7 +22,6 @@ def analyze_new_error(run_df, groundtruth_df):
     new_error_points = new_errors_in_seconds[new_errors_in_seconds != 0].index.tolist()
 
     return new_errors_in_seconds[new_error_points]
-
 
 def calculate_statistics(errors):
     if len(errors) == 0:
@@ -63,10 +64,12 @@ def main():
 
     total_errors = []
     total_points = 0
+    all_errors = []
 
     for run, df in run_dfs.items():
         errors = analyze_new_error(df, groundtruth_df)
         total_errors.extend(errors)
+        all_errors.extend(errors)
         total_points += len(df)
         
         results = calculate_statistics(errors)
@@ -91,7 +94,16 @@ def main():
     print(f"RMSE of New Error: {total_results['rmse_error']:.5f} seconds")
     print(f"95% Confidence Interval of New Error: ({total_results['confidence_interval'][0]:.5f}, {total_results['confidence_interval'][1]:.5f}) seconds")
     print(f"New Error Frequency: {total_error_frequency*100:.5f} %")
-
+    
+    # do plus minus
+    print(f"New Error: {total_results['mean_error']:.5f} ± {total_results['confidence_interval'][1] - total_results['mean_error']:.5f} seconds")
+    
+    plt.figure(figsize=(10, 5))
+    sns.histplot(all_errors, bins=12, kde=False)
+    plt.title('Distribution of Newly Introduced Errors')
+    plt.xlabel('Error Duration (seconds)')
+    plt.ylabel('Frequency')
+    plt.show()
 
 if __name__ == "__main__":
     main()

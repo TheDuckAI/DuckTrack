@@ -165,6 +165,7 @@ experiments/**/*.csv
 experiments/**/*.mp4
 experiments/**/*.jsonl
 experiments/**/*.json
+experiments/**/*.md
 
 # macos
 *DS_Store*
