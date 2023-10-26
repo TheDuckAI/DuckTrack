@@ -8,6 +8,7 @@ import scipy.stats as stats
 from skimage.metrics import structural_similarity as ssim
 from tqdm import tqdm
 
+# use this: https://sketch.io
 
 def calculate_rmse(imageA, imageB):
     err = np.sum((imageA - imageB) ** 2)
