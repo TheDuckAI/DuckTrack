@@ -100,9 +100,10 @@ def main():
     
     plt.figure(figsize=(10, 5))
     sns.histplot(all_errors, bins=12, kde=False)
-    plt.title('Distribution of Newly Introduced Errors')
+    plt.title('Distribution of Newly Introduced Errors (macOS)')
     plt.xlabel('Error Duration (seconds)')
     plt.ylabel('Frequency')
+    plt.savefig('error_dist', dpi=300)
     plt.show()
 
 if __name__ == "__main__":
