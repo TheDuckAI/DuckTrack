@@ -18,20 +18,17 @@ TOTAL_EVENTS = 22509
 percent_delays = []
 all_delays = []
 
-# Read delay data from files and calculate percent delays
 for run in runs:
     with open(run, "r") as f:
         delays = [float(line.split()[3]) for line in f if float(line.split()[3]) > 0]  # consider only positive delays
         percent_delays.append((len(delays) / TOTAL_EVENTS) * 100)
         all_delays.extend(delays)
 
-# Calculate the average percentage of delayed events across all runs
 average_percent_delays = np.mean(percent_delays)
 confidence_interval_percent_delays = calculate_confidence_interval(percent_delays)
 print(f"Average percentage of delayed events across all runs: {average_percent_delays:.2f}%")
 print(f"95% Confidence interval: ({confidence_interval_percent_delays[1]:.2f}%, {confidence_interval_percent_delays[2]:.2f}%)")
 
-# Calculate the mean delay time and its 95% confidence interval
 if all_delays:
     mean_delay = np.mean(all_delays)
     confidence_interval_delays = calculate_confidence_interval(all_delays)
@@ -40,15 +37,12 @@ if all_delays:
 else:
     print("No delay data available for calculation.")
 
-# Create a histogram of delay times from all runs
 sns.histplot(all_delays, bins=30, kde=False)
 plt.xlabel('Delay Time (ms)')
 plt.ylabel('Frequency')
 plt.yscale('log')
 plt.title('Histogram of Delay Times (macOS)')
 
-# Save the figure with a higher resolution
 plt.savefig('delays.png', dpi=300)
 
-# Show the plot
 plt.show()
