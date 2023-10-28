@@ -86,6 +86,7 @@ Here is a [sample recording](example) for further reference.
 ## Known Bugs
 
 - After doing lots of playback, a segfault will occur.
+- Mouse movement is not captured when the current application is using raw input, i.e. video games.
 
 ## Things To Do
 
