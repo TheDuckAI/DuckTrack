@@ -9,9 +9,9 @@ This is the repository for the DuckAI DuckTrack app which records all keyboard a
 <!-- TODO: add prebuilt applications in github releases -->
 Download the pre-built application for your system [here](https://github.com/TheDuckAI/DuckTrack/releases/).
 
-Make sure you have OBS downloaded and:
+Make sure you have OBS downloaded with the following configuration:
 1. Have a screen capture source recording your whole main screen.
-2. Enable desktop audio.
+2. Enable desktop audio and mute microphone.
 3. Make sure the default websocket is enabled.
 
 More detailed instructions for OBS setup and installation located [here](OBS_SETUP.md).
