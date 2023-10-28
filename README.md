@@ -87,6 +87,7 @@ Here is a [sample recording](example) for further reference.
 
 - After doing lots of playbacks on macOS, a segfault will occur.
 - Mouse movement is not captured when the current application is using raw input, i.e. video games.
+- OBS may not open in the background properly on some Linux machines.
 
 ## Things To Do
 

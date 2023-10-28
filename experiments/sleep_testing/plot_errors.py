@@ -20,7 +20,7 @@ def plot_from_csv(filename, save_plot=False):
     plt.plot(durations, busy_sleep_errors, label='busy_sleep()', marker='x')
     plt.xlabel('Desired Delay (ms)')
     plt.ylabel('Average Error (ms)')
-    plt.title('Sleep Accuracy: time.sleep() vs Busy-Wait Loop')
+    plt.title('Sleep Accuracy: time.sleep() vs Busy-Wait Loop (macOS)')
     plt.legend()
     plt.grid(True)
     
