@@ -7,7 +7,7 @@ from subprocess import CalledProcessError, run
 project_dir = Path(".")
 assets_dir = project_dir / "assets"
 main_py = project_dir / "main.py"
-icon_file = assets_dir / ("hal9000.ico" if system() == "Windows" else "hal9000.png")
+icon_file = assets_dir / ("duck.ico" if system() == "Windows" else "duck.png")
 
 for dir_to_remove in ["dist", "build"]:
     dir_path = project_dir / dir_to_remove

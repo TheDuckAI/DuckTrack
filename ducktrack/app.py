@@ -45,7 +45,7 @@ class TitleDescriptionDialog(QDialog):
 class MainInterface(QWidget):
     def __init__(self, app: QApplication):
         super().__init__()
-        self.tray = QSystemTrayIcon(QIcon(resource_path("assets/hal9000.png")))
+        self.tray = QSystemTrayIcon(QIcon(resource_path("assets/duck.png")))
         self.tray.show()
                 
         self.app = app
