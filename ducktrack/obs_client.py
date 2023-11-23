@@ -145,7 +145,13 @@ class OBSClient:
         self.req_client.set_profile_parameter("SimpleOutput", "FilePath", recording_path)
     
         # TODO: not all OBS configs have this, maybe just instruct the user to mute themselves
-        self.req_client.set_input_mute("Mic/Aux", muted=True)
+
+
+        try:
+            self.req_client.set_input_mute("Mic/Aux", muted=True)
+        except obs.error.OBSSDKRequestError :
+            # In case there is no Mic/Aux input, this will throw an error
+            pass
 
     def start_recording(self):
         self.req_client.start_record()
