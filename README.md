@@ -2,6 +2,8 @@
 
 This is the repository for the DuckAI DuckTrack app which records all keyboard and mouse input as well as the screen for use in a multimodal computer interaction dataset.
 
+[Blog Post](https://duckai.org/blog/ducktrack)
+
 ## Installation & Setup
 
 ### Download Application
