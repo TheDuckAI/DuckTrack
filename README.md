@@ -2,7 +2,7 @@
 
 This is the repository for the DuckAI DuckTrack app which records all keyboard and mouse input as well as the screen for use in a multimodal computer interaction dataset.
 
-[Blog Post](https://duckai.org/blog/ducktrack)
+[Blog Post](https://duckai-site.netlify.app/blog/ducktrack)
 
 ## Installation & Setup
 
@@ -98,3 +98,4 @@ Here is a [sample recording](example) for further reference.
 - CI (with builds and testing)
 - Add way to hide/show window from the app tray (and it saves that as a preference?)
 - Make saving preferences a thing generally, like with natural scrolling too
+
