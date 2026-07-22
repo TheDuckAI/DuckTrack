@@ -22,16 +22,17 @@ class KeyCombinationListener:
         self.listener = Listener(on_press=self.on_key_press, on_release=self.on_key_release)
 
     def add_comb(self, keys, callback):
-        self.callbacks[tuple([name_to_key(key_name) for key_name in sorted(keys)])] = callback
+        # store combos in canonical form so they compare against canonicalized presses
+        self.callbacks[tuple([self.canonicalize_key(name_to_key(key_name)) for key_name in sorted(keys)])] = callback
 
     def canonicalize_key(self, key):
-        # listener.canonical undoes the effect of held modifiers on the
-        # reported character (e.g. ctrl+r arriving as '\x12')
-        key = self.listener.canonical(key)
+        # fold left/right modifier variants first, then let listener.canonical
+        # undo the effect of held modifiers on the reported character
+        # (e.g. ctrl+r arriving as '\x12')
         name = getattr(key, "name", None)
         if name in CANONICAL_KEY_NAMES:
-            return name_to_key(CANONICAL_KEY_NAMES[name])
-        return key
+            key = name_to_key(CANONICAL_KEY_NAMES[name])
+        return self.listener.canonical(key)
 
     def on_key_press(self, key):
         self.current_keys.add(self.canonicalize_key(key))
