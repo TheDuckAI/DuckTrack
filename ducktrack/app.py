@@ -2,13 +2,14 @@ import os
 import sys
 from platform import system
 
-from PyQt6.QtCore import QSettings, QTimer, pyqtSlot
+from PyQt6.QtCore import QSettings, QTimer, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QDialog, QFileDialog,
                              QFormLayout, QLabel, QLineEdit, QMenu,
                              QMessageBox, QPushButton, QSystemTrayIcon,
                              QTextEdit, QVBoxLayout, QWidget)
 
+from .keycomb import KeyCombinationListener
 from .obs_client import close_obs, is_obs_running, open_obs
 from .playback import Player, get_latest_recording
 from .recorder import Recorder
@@ -43,6 +44,10 @@ class TitleDescriptionDialog(QDialog):
         return self.title_input.text(), self.description_input.toPlainText()
 
 class MainInterface(QWidget):
+    # emitted by the hotkey listener thread so that toggle_record
+    # always runs on the Qt main thread
+    toggle_record_requested = pyqtSignal()
+
     def __init__(self, app: QApplication):
         super().__init__()
         self.tray = QSystemTrayIcon(QIcon(resource_path("assets/duck.png")))
@@ -58,6 +63,11 @@ class MainInterface(QWidget):
 
         if not is_obs_running():
             self.obs_process = open_obs()
+
+        self.toggle_record_requested.connect(self.toggle_record)
+        self.hotkey_listener = KeyCombinationListener()
+        self.hotkey_listener.add_comb(("ctrl", "alt", "r"), self.toggle_record_requested.emit)
+        self.hotkey_listener.start()
 
     def show_macos_permissions_notice(self):
         settings = QSettings("TheDuckAI", "DuckTrack")
@@ -189,6 +199,7 @@ class MainInterface(QWidget):
             self.toggle_record()
         if hasattr(self, "obs_process"):
             close_obs(self.obs_process)
+        self.hotkey_listener.stop()
         self.app.quit()
 
     def closeEvent(self, event):
