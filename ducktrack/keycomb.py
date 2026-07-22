@@ -11,13 +11,6 @@ CANONICAL_KEY_NAMES = {
     "cmd_l": "cmd", "cmd_r": "cmd",
 }
 
-def canonicalize_key(key):
-    name = getattr(key, "name", None)
-    if name in CANONICAL_KEY_NAMES:
-        return name_to_key(CANONICAL_KEY_NAMES[name])
-    return key
-
-
 class KeyCombinationListener:
     """
     Simple and bad key combination listener.
@@ -31,14 +24,23 @@ class KeyCombinationListener:
     def add_comb(self, keys, callback):
         self.callbacks[tuple([name_to_key(key_name) for key_name in sorted(keys)])] = callback
 
+    def canonicalize_key(self, key):
+        # listener.canonical undoes the effect of held modifiers on the
+        # reported character (e.g. ctrl+r arriving as '\x12')
+        key = self.listener.canonical(key)
+        name = getattr(key, "name", None)
+        if name in CANONICAL_KEY_NAMES:
+            return name_to_key(CANONICAL_KEY_NAMES[name])
+        return key
+
     def on_key_press(self, key):
-        self.current_keys.add(canonicalize_key(key))
+        self.current_keys.add(self.canonicalize_key(key))
         for comb, callback in self.callbacks.items():
             if all(k in self.current_keys for k in comb):
                 return callback()
 
     def on_key_release(self, key):
-        key = canonicalize_key(key)
+        key = self.canonicalize_key(key)
         if key in self.current_keys:
             self.current_keys.remove(key)
 

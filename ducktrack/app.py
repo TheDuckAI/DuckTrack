@@ -9,7 +9,8 @@ from PyQt6.QtWidgets import (QApplication, QCheckBox, QDialog, QFileDialog,
                              QMessageBox, QPushButton, QSystemTrayIcon,
                              QTextEdit, QVBoxLayout, QWidget)
 
-from .keycomb import KeyCombinationListener
+from pynput.keyboard import GlobalHotKeys
+
 from .obs_client import close_obs, is_obs_running, open_obs
 from .playback import Player, get_latest_recording
 from .recorder import Recorder
@@ -65,8 +66,7 @@ class MainInterface(QWidget):
             self.obs_process = open_obs()
 
         self.toggle_record_requested.connect(self.toggle_record)
-        self.hotkey_listener = KeyCombinationListener()
-        self.hotkey_listener.add_comb(("ctrl", "alt", "r"), self.toggle_record_requested.emit)
+        self.hotkey_listener = GlobalHotKeys({"<ctrl>+<alt>+r": self.toggle_record_requested.emit})
         self.hotkey_listener.start()
 
     def show_macos_permissions_notice(self):
