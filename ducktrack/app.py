@@ -2,7 +2,7 @@ import os
 import sys
 from platform import system
 
-from PyQt6.QtCore import QTimer, pyqtSlot
+from PyQt6.QtCore import QSettings, QTimer, pyqtSlot
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QDialog, QFileDialog,
                              QFormLayout, QLabel, QLineEdit, QMenu,
@@ -52,9 +52,28 @@ class MainInterface(QWidget):
         
         self.init_tray()
         self.init_window()
-        
+
+        if system() == "Darwin":
+            self.show_macos_permissions_notice()
+
         if not is_obs_running():
             self.obs_process = open_obs()
+
+    def show_macos_permissions_notice(self):
+        settings = QSettings("TheDuckAI", "DuckTrack")
+        if settings.value("shown_macos_permissions_notice", False, type=bool):
+            return
+        QMessageBox.information(
+            self,
+            "Permissions Required",
+            "DuckTrack needs several macOS permissions to record correctly:\n\n"
+            "1. Screen Recording (for OBS) - to capture your screen\n"
+            "2. Accessibility - to track mouse movements\n"
+            "3. Input Monitoring - to track keyboard events\n\n"
+            "If recordings come out empty, check System Settings > Privacy & Security "
+            "and make sure DuckTrack and OBS are allowed."
+        )
+        settings.setValue("shown_macos_permissions_notice", True)
 
     def init_window(self):
         self.setWindowTitle("DuckTrack")

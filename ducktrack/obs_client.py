@@ -3,6 +3,7 @@ import subprocess
 import time
 from platform import system
 
+from obsws_python.error import OBSSDKRequestError
 import obsws_python as obs
 import psutil
 
@@ -17,7 +18,19 @@ def is_obs_running() -> bool:
         raise Exception("Could not check if OBS is running already. Please check manually.")
 
 def close_obs(obs_process: subprocess.Popen):
-    if obs_process:
+    if system() == "Darwin":
+        # OBS is launched with `open -a`, so obs_process is not the OBS process
+        # itself and terminating it would do nothing - quit OBS via AppleScript
+        try:
+            subprocess.run(["osascript", "-e", 'tell application "OBS" to quit'], timeout=10, check=False)
+        except subprocess.TimeoutExpired:
+            pass
+        for _ in range(10):
+            if not is_obs_running():
+                return
+            time.sleep(0.5)
+        subprocess.run(["killall", "OBS"], check=False)
+    elif obs_process:
         obs_process.terminate()
         try:
             obs_process.wait(timeout=5)
@@ -64,6 +77,10 @@ def open_obs() -> subprocess.Popen:
             # you have to change the working directory first for OBS to find the correct locale on windows
             os.chdir(os.path.dirname(obs_path))
             obs_path = os.path.basename(obs_path)
+        if system() == "Darwin":
+            # `open -a` launches OBS the way macOS expects, which keeps the
+            # screen recording & accessibility permission prompts working
+            return subprocess.Popen(["open", "-a", "OBS", "--args", "--startreplaybuffer", "--minimize-to-tray"])
         return subprocess.Popen([obs_path, "--startreplaybuffer", "--minimize-to-tray"])
     except:
         raise Exception("Failed to find OBS, please open OBS manually.")
@@ -83,10 +100,22 @@ class OBSClient:
         output_height=720, 
     ):
         self.metadata = metadata
-        
-        self.req_client = obs.ReqClient()
-        self.event_client = obs.EventClient()
-        
+
+        # OBS may still be starting up (e.g. when DuckTrack just launched it),
+        # so retry the websocket connection until it is ready to take requests
+        max_attempts = 5
+        for attempt in range(1, max_attempts + 1):
+            try:
+                self.req_client = obs.ReqClient()
+                self.event_client = obs.EventClient()
+                print("connected to OBS version:", self.req_client.get_version().obs_version)
+                break
+            except Exception as e:
+                if attempt == max_attempts:
+                    raise Exception("Could not connect to OBS. Please check that it is running and that the websocket server is enabled.") from e
+                print(f"waiting for OBS websocket (attempt {attempt}/{max_attempts}): {e}")
+                time.sleep(2)
+
         self.record_state_events = {}
         
         def on_record_state_changed(data):
@@ -98,15 +127,19 @@ class OBSClient:
         
         self.event_client.callback.register(on_record_state_changed)
 
-        self.old_profile = self.req_client.get_profile_list().current_profile_name
+        self.old_profile = None
+        try:
+            self.old_profile = self.req_client.get_profile_list().current_profile_name
 
-        if "computer_tracker" not in self.req_client.get_profile_list().profiles:
-            self.req_client.create_profile("computer_tracker")
-        else:
-            self.req_client.set_current_profile("computer_tracker")
-            self.req_client.create_profile("temp")
-            self.req_client.remove_profile("temp")
-            self.req_client.set_current_profile("computer_tracker")
+            if "computer_tracker" not in self.req_client.get_profile_list().profiles:
+                self.req_client.create_profile("computer_tracker")
+            else:
+                self.req_client.set_current_profile("computer_tracker")
+                self.req_client.create_profile("temp")
+                self.req_client.remove_profile("temp")
+                self.req_client.set_current_profile("computer_tracker")
+        except OBSSDKRequestError as e:
+            print(f"warning: could not switch to the computer_tracker profile, continuing with the current profile: {e}")
 
         base_width = metadata["screen_width"]
         base_height = metadata["screen_height"]
@@ -149,16 +182,20 @@ class OBSClient:
 
         try:
             self.req_client.set_input_mute("Mic/Aux", muted=True)
-        except obs.error.OBSSDKRequestError :
-            # In case there is no Mic/Aux input, this will throw an error
+        except OBSSDKRequestError:
             pass
+            # In case there is no Mic/Aux input, this will throw an error
 
     def start_recording(self):
         self.req_client.start_record()
 
     def stop_recording(self):
         self.req_client.stop_record()
-        self.req_client.set_current_profile(self.old_profile) # restore old profile
+        if self.old_profile:
+            try:
+                self.req_client.set_current_profile(self.old_profile) # restore old profile
+            except OBSSDKRequestError as e:
+                print(f"warning: could not restore the previous OBS profile: {e}")
 
     def pause_recording(self):
         self.req_client.pause_record()
