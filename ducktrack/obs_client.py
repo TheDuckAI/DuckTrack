@@ -3,6 +3,7 @@ import subprocess
 import time
 from platform import system
 
+from obsws_python.error import OBSSDKRequestError
 import obsws_python as obs
 import psutil
 
@@ -149,9 +150,9 @@ class OBSClient:
 
         try:
             self.req_client.set_input_mute("Mic/Aux", muted=True)
-        except obs.error.OBSSDKRequestError :
-            # In case there is no Mic/Aux input, this will throw an error
+        except OBSSDKRequestError:
             pass
+            # In case there is no Mic/Aux input, this will throw an error
 
     def start_recording(self):
         self.req_client.start_record()
