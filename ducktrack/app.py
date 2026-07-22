@@ -2,12 +2,14 @@ import os
 import sys
 from platform import system
 
-from PyQt6.QtCore import QTimer, pyqtSlot
+from PyQt6.QtCore import QSettings, QTimer, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import (QApplication, QCheckBox, QDialog, QFileDialog,
                              QFormLayout, QLabel, QLineEdit, QMenu,
                              QMessageBox, QPushButton, QSystemTrayIcon,
                              QTextEdit, QVBoxLayout, QWidget)
+
+from pynput.keyboard import GlobalHotKeys
 
 from .obs_client import close_obs, is_obs_running, open_obs
 from .playback import Player, get_latest_recording
@@ -43,6 +45,10 @@ class TitleDescriptionDialog(QDialog):
         return self.title_input.text(), self.description_input.toPlainText()
 
 class MainInterface(QWidget):
+    # emitted by the hotkey listener thread so that toggle_record
+    # always runs on the Qt main thread
+    toggle_record_requested = pyqtSignal()
+
     def __init__(self, app: QApplication):
         super().__init__()
         self.tray = QSystemTrayIcon(QIcon(resource_path("assets/duck.png")))
@@ -52,9 +58,32 @@ class MainInterface(QWidget):
         
         self.init_tray()
         self.init_window()
-        
+
+        if system() == "Darwin":
+            self.show_macos_permissions_notice()
+
         if not is_obs_running():
             self.obs_process = open_obs()
+
+        self.toggle_record_requested.connect(self.toggle_record)
+        self.hotkey_listener = GlobalHotKeys({"<ctrl>+<alt>+r": self.toggle_record_requested.emit})
+        self.hotkey_listener.start()
+
+    def show_macos_permissions_notice(self):
+        settings = QSettings("TheDuckAI", "DuckTrack")
+        if settings.value("shown_macos_permissions_notice", False, type=bool):
+            return
+        QMessageBox.information(
+            self,
+            "Permissions Required",
+            "DuckTrack needs several macOS permissions to record correctly:\n\n"
+            "1. Screen Recording (for OBS) - to capture your screen\n"
+            "2. Accessibility - to track mouse movements\n"
+            "3. Input Monitoring - to track keyboard events\n\n"
+            "If recordings come out empty, check System Settings > Privacy & Security "
+            "and make sure DuckTrack and OBS are allowed."
+        )
+        settings.setValue("shown_macos_permissions_notice", True)
 
     def init_window(self):
         self.setWindowTitle("DuckTrack")
@@ -170,6 +199,7 @@ class MainInterface(QWidget):
             self.toggle_record()
         if hasattr(self, "obs_process"):
             close_obs(self.obs_process)
+        self.hotkey_listener.stop()
         self.app.quit()
 
     def closeEvent(self, event):
