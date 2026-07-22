@@ -26,7 +26,7 @@ class MetadataManager:
         try:
             match self.metadata["system"]:
                 case "Windows":
-                    import wmi
+                    import wmi  # ty: ignore[unresolved-import]  # windows-only dependency
                     for item in wmi.WMI().Win32_ComputerSystem():
                         self.metadata["model"] = item.Model
                         break
@@ -37,7 +37,7 @@ class MetadataManager:
                 case "Linux":
                     with open("/sys/devices/virtual/dmi/id/product_name", "r") as f:
                         self.metadata["model"] = f.read().strip()
-        except:
+        except Exception:
             self.metadata["model"] = "Unknown"
         
         self.metadata["scroll_direction"] = -1 if natural_scrolling else 1

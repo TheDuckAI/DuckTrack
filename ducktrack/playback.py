@@ -11,11 +11,10 @@ from pynput.mouse import Button
 from pynput.mouse import Controller as MouseController
 
 from .keycomb import KeyCombinationListener
-from .util import (fix_windows_dpi_scaling, get_recordings_dir, name_to_button,
-                   name_to_key)
+from .util import fix_windows_dpi_scaling, get_recordings_dir, name_to_button, name_to_key
 
-pyautogui.PAUSE = 0
-pyautogui.DARWIN_CATCH_UP_TIME = 0
+pyautogui.PAUSE = 0.0
+pyautogui.DARWIN_CATCH_UP_TIME = 0.0
 
 class Player:
     """
