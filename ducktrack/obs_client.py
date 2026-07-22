@@ -13,7 +13,7 @@ def is_obs_running() -> bool:
             if "obs" in process.info["name"].lower():
                 return True
         return False
-    except:
+    except Exception:
         raise Exception("Could not check if OBS is running already. Please check manually.")
 
 def close_obs(obs_process: subprocess.Popen):
@@ -65,7 +65,7 @@ def open_obs() -> subprocess.Popen:
             os.chdir(os.path.dirname(obs_path))
             obs_path = os.path.basename(obs_path)
         return subprocess.Popen([obs_path, "--startreplaybuffer", "--minimize-to-tray"])
-    except:
+    except Exception:
         raise Exception("Failed to find OBS, please open OBS manually.")
 
 class OBSClient:
@@ -181,14 +181,15 @@ def _get_bitrate_mbps(width: int, height: int, fps=30) -> float:
         (480, 360):   {30: 1,   60: 1.5}
     }
 
-    if (width, height) in resolutions:
-        return resolutions[(width, height)].get(fps)
-    else:
-        # approximate the bitrate using a simple linear model
-        area = width * height
-        multiplier = 3.5982188179592543e-06 if fps == 30 else 5.396175171097084e-06
-        constant = 2.418399836285939 if fps == 30 else 3.742780056500365
-        return multiplier * area + constant
+    bitrate = resolutions.get((width, height), {}).get(fps)
+    if bitrate is not None:
+        return bitrate
+
+    # approximate the bitrate using a simple linear model
+    area = width * height
+    multiplier = 3.5982188179592543e-06 if fps == 30 else 5.396175171097084e-06
+    constant = 2.418399836285939 if fps == 30 else 3.742780056500365
+    return multiplier * area + constant
 
 def _scale_resolution(base_width: int, base_height: int, target_width: int,  target_height: int) -> tuple[int, int]:
     target_area = target_width * target_height

@@ -17,7 +17,7 @@ for dir_to_remove in ["dist", "build"]:
 pyinstaller_cmd = [
     "pyinstaller", "--onefile", "--windowed",
     f"--add-data={assets_dir}{';' if system() == 'Windows' else ':'}{assets_dir}",
-    f"--name=DuckTrack", f"--icon={icon_file}", str(main_py)
+    "--name=DuckTrack", f"--icon={icon_file}", str(main_py)
 ]
 
 try:

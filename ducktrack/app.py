@@ -3,11 +3,23 @@ import sys
 from platform import system
 
 from PyQt6.QtCore import QTimer, pyqtSlot
-from PyQt6.QtGui import QAction, QIcon
-from PyQt6.QtWidgets import (QApplication, QCheckBox, QDialog, QFileDialog,
-                             QFormLayout, QLabel, QLineEdit, QMenu,
-                             QMessageBox, QPushButton, QSystemTrayIcon,
-                             QTextEdit, QVBoxLayout, QWidget)
+from PyQt6.QtGui import QAction, QCloseEvent, QIcon
+from PyQt6.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QDialog,
+    QFileDialog,
+    QFormLayout,
+    QLabel,
+    QLineEdit,
+    QMenu,
+    QMessageBox,
+    QPushButton,
+    QSystemTrayIcon,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .obs_client import close_obs, is_obs_running, open_obs
 from .playback import Player, get_latest_recording
@@ -90,7 +102,8 @@ class MainInterface(QWidget):
         self.quit_button.clicked.connect(self.quit)
         layout.addWidget(self.quit_button)
         
-        self.natural_scrolling_checkbox = QCheckBox("Natural Scrolling", self, checked=system() == "Darwin")
+        self.natural_scrolling_checkbox = QCheckBox("Natural Scrolling", self)
+        self.natural_scrolling_checkbox.setChecked(system() == "Darwin")
         layout.addWidget(self.natural_scrolling_checkbox)
 
         self.natural_scrolling_checkbox.stateChanged.connect(self.toggle_natural_scrolling)
@@ -133,7 +146,9 @@ class MainInterface(QWidget):
         
         self.menu.addSeparator()
         
-        self.natural_scrolling_option = QAction("Natural Scrolling", checkable=True, checked=system() == "Darwin")
+        self.natural_scrolling_option = QAction("Natural Scrolling")
+        self.natural_scrolling_option.setCheckable(True)
+        self.natural_scrolling_option.setChecked(system() == "Darwin")
         self.natural_scrolling_option.triggered.connect(self.toggle_natural_scrolling)
         self.menu.addAction(self.natural_scrolling_option)
         
@@ -172,7 +187,7 @@ class MainInterface(QWidget):
             close_obs(self.obs_process)
         self.app.quit()
 
-    def closeEvent(self, event):
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.quit()
 
     @pyqtSlot()

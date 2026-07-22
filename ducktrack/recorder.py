@@ -80,13 +80,13 @@ class Recorder(QThread):
         if not self._is_paused:
             self.event_queue.put({"time_stamp": time.perf_counter(), 
                                   "action": "press", 
-                                  "name": key.char if type(key) == KeyCode else key.name}, block=False)
+                                  "name": key.char if isinstance(key, KeyCode) else key.name}, block=False)
 
     def on_release(self, key):
         if not self._is_paused:
             self.event_queue.put({"time_stamp": time.perf_counter(), 
                                   "action": "release", 
-                                  "name": key.char if type(key) == KeyCode else key.name}, block=False)
+                                  "name": key.char if isinstance(key, KeyCode) else key.name}, block=False)
 
     def run(self):
         self._is_recording = True

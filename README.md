@@ -27,7 +27,7 @@ Make sure to accept all other security permission dialogues to ensure that the a
 
 ### Build from source
 
-Have Python >=3.11.
+Have [uv](https://docs.astral.sh/uv/) installed.
 
 Clone this repo and `cd` into it:
 ```bash
@@ -37,19 +37,19 @@ $ cd DuckTrack
 
 Install the dependencies for this project:
 ```bash
-$ pip install -r requirements.txt
+$ uv sync
 ```
 
 Build the application:
 ```bash
-$ python3 build.py
+$ uv run build.py
 ```
 
 The built application should be located in the generated `dist` directory. After this, follow the remaining relevant setup instructions.
 
 ## Running the App
 
-You can run the app like any other desktop app on your computer. If you decided to not download the app or build it from source, just run `python main.py` and it should work the same. You will be interacting with the app through an app tray icon or a small window.
+You can run the app like any other desktop app on your computer. If you decided to not download the app or build it from source, just run `uv run main.py` and it should work the same. You will be interacting with the app through an app tray icon or a small window.
 
 ### Recording
 

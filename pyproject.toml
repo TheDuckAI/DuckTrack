@@ -1,0 +1,40 @@
+[project]
+name = "ducktrack"
+version = "0.1.0"
+description = "Multi-OS computer usage data collection app"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "obsws-python",
+    "pillow",
+    "psutil",
+    "pyautogui",
+    "pynput>=1.8.2",
+    "pyqt6",
+    "screeninfo",
+    "wmi; platform_system == 'Windows'",
+]
+
+[dependency-groups]
+dev = [
+    "pyinstaller",
+    "pytest",
+    "ruff",
+    "ty",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["experiments", "build"]
+
+[tool.ruff.lint]
+# default rules (pyflakes + pycodestyle errors) plus import sorting
+extend-select = ["I"]
+
+[tool.ty.src]
+include = ["ducktrack", "main.py", "build.py"]
+
+[tool.ty.environment]
+# don't flag platform-guarded code (os.startfile, ctypes.windll, wmi, ...)
+python-platform = "all"
